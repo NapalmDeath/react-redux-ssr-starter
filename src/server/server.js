@@ -18,31 +18,27 @@ const isProd = process.env.NODE_ENV === 'production';
 export default async function startServer(options) {
     // Create HTTP server.
     const app = new express();
+    const { configuration: { output: { publicPath: baseUrl } } } = options;
 
-    const stats = fs.readFileSync(path.join(buildPath, 'react-loadable.json'));
+    const stats = JSON.parse(fs.readFileSync(path.join(buildPath, 'react-loadable.json'), 'utf8'));
 
     // Serve static files.
     if (isProd) {
         app.use('/static', express.static(path.join(buildPath, 'static')));
     } else {
-        const proxy = httpProxy.createProxyServer({ target: 'http://127.0.0.1:3001/static' });
+        const proxy = httpProxy.createProxyServer({ target: `${ baseUrl }static` });
         app.use('/static', (req, res) => proxy.web(req, res));
     }
-
-    // Proxy API calls to API server.
-    const proxy = httpProxy.createProxyServer({ target: 'http://localhost:8081' });
-    app.use('/api', (req, res) => proxy.web(req, res));
 
     let templateHtml;
 
     if (isProd) {
         templateHtml = fs.readFileSync(path.join(buildPath, 'index.html'), 'utf8');
     } else {
-        const template = await fetch(`http://127.0.0.1:3001`);
+        const template = await fetch(baseUrl);
         templateHtml = await template.text();
     }
 
-    // React application rendering.
     app.use((req, res) => {
         const context = {};
         const modules = [];
@@ -55,17 +51,28 @@ export default async function startServer(options) {
         );
         const bundles = getBundles(stats, modules);
 
-        res.status(200);
-        return res.send(
-            templateHtml.replace(
-                '<div id="app"></div>',
-                `<div id="app">${ app }</div>
-                ${bundles.map(bundle => `<script src="${bundle.publicPath}"></script>`).join('\n')}
-                `
-            )
+        const styles = bundles.filter(bundle => bundle.file.endsWith('.css'));
+        const scripts = bundles.filter(bundle => bundle.file.endsWith('.js'));
+
+        let renderedHtml = templateHtml.replace(
+            '<div id="app"></div>',
+            `<div id="app">${ app }</div>
+            ${scripts.map(bundle => `<script src="${bundle.publicPath}"></script>`).join('\n')}
+            `
         );
+        renderedHtml = renderedHtml.replace(
+            '</head>',
+            styles.map(bundle => `<link href="${bundle.publicPath}" rel="stylesheet"/>`).join('\n')
+        );
+
+        res.status(200);
+
+        return res.send(renderedHtml);
     });
 
-    // Start the HTTP server.
-    app.listen(3000);
+    Loadable.preloadAll().then(() => {
+        app.listen(3000, () => {
+            console.log('Running on http://localhost:3000/');
+        });
+    });
 }

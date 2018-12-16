@@ -4,11 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build-client:dev": "webpack-dev-server --hot --config ./webpack/webpack.config.client.babel.js --mode development",
-    "build-server:dev": "BUILD=server webpack --watch --config ./webpack/webpack.config.server.babel.js --colors --display-error-details --mode development",
-    "server:dev": "nodemon --exec babel-node ./src/startServer --watch ./build/server",
-    "build-client:prod": "NODE_ENV=production webpack --config ./webpack/webpack.config.client.babel.js --colors --display-error-details --mode production",
-    "build-server:prod": "NODE_ENV=production BUILD=server webpack --config ./webpack/webpack.config.server.babel.js --colors --display-error-details --mode production",
+    "build-client:dev": "webpack-dev-server --hot --config ./webpack/config.client.babel.js --mode development",
+    "build-server:dev": "BUILD=server webpack --watch --config ./webpack/config.server.babel.js --colors --display-error-details --mode development",
+    "server:dev": "nodemon ./bin/startServer --watch ./build/server",
+    "build-client:prod": "NODE_ENV=production webpack --config ./webpack/config.client.babel.js --colors --display-error-details --mode production",
+    "build-server:prod": "NODE_ENV=production BUILD=server webpack --config ./webpack/config.server.babel.js --colors --display-error-details --mode production",
     "build:prod": "npm-run-all --parallel build-client:prod build-server:prod",
     "server:prod": "NODE_ENV=production node ./src/startServer",
     "dev": "npm-run-all --parallel build-client:dev build-server:dev server:dev"

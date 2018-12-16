@@ -7,7 +7,7 @@ class App extends React.Component {
     render() {
         return (
             <div>
-                Hello world 18
+                Hello world 21
                 <div>
                     <Link to="/">Главная</Link>
                 </div>
