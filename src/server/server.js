@@ -19,7 +19,7 @@ const HOST = '127.0.0.1';
 const PORT = 3000;
 
 // Starts the server.
-export default async function startServer(options) {
+export default function startServer(options) {
     // Create HTTP server.
     const app = new express();
 
@@ -38,38 +38,40 @@ export default async function startServer(options) {
         templateHtml = fs.readFileSync(path.join(srcPath, 'index.html.ejs'), 'utf8')
     }
 
-    app.use(async (req, res) => {
-        await loadData(req.url);
+    app.use((req, res) => {
+        const render = () => {
+            const context = {};
+            const modules = [];
+            const app = renderToString(
+                <Loadable.Capture report={ moduleName => modules.push(moduleName) }>
+                    <StaticRouter location={req.url} context={context}>
+                        <App />
+                    </StaticRouter>
+                </Loadable.Capture>
+            );
+            const bundles = getBundles(stats, modules);
 
-        const context = {};
-        const modules = [];
-        const app = renderToString(
-            <Loadable.Capture report={ moduleName => modules.push(moduleName) }>
-                <StaticRouter location={req.url} context={context}>
-                    <App />
-                </StaticRouter>
-            </Loadable.Capture>
-        );
-        const bundles = getBundles(stats, modules);
+            const styles = [
+                ...bundles.filter(bundle => bundle.file.endsWith('.css')).map(style => style.publicPath),
+                ...Object.values(options.chunks().styles),
+            ];
+            const scripts = [
+                ...bundles.filter(bundle => bundle.file.endsWith('.js')).map(script => script.publicPath),
+                ...Object.values(options.chunks().javascript),
+            ];
 
-        const styles = [
-            ...bundles.filter(bundle => bundle.file.endsWith('.css')).map(style => style.publicPath),
-            ...Object.values(options.chunks().styles),
-        ];
-        const scripts = [
-            ...bundles.filter(bundle => bundle.file.endsWith('.js')).map(script => script.publicPath),
-            ...Object.values(options.chunks().javascript),
-        ];
+            let renderedHtml = ejs.render(templateHtml, {
+                app,
+                scripts,
+                styles,
+            });
 
-        let renderedHtml = ejs.render(templateHtml, {
-            app,
-            scripts,
-            styles,
-        });
+            res.status(200);
 
-        res.status(200);
+            return res.send(renderedHtml);
+        };
 
-        return res.send(renderedHtml);
+        loadData(req.url).then(render);
     });
 
     Loadable.preloadAll().then(() => {

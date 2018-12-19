@@ -1,5 +1,4 @@
 require('@babel/polyfill');
+const server = require('./server');
 
-import server from './server';
-
-export default server;
+module.exports = server;

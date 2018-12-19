@@ -1,5 +1,5 @@
 import { matchRoutes } from 'react-router-config';
-import Routes from '../client/pages/routes';
+import Routes from 'client/pages/routes';
 
 export default async (url) => {
     const matchingRoutes = matchRoutes(Routes, url);
@@ -12,5 +12,5 @@ export default async (url) => {
         }
     });
 
-    return await Promise.all(promises);
+    return Promise.all(promises);
 }
