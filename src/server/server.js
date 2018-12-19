@@ -9,6 +9,7 @@ import Loadable from 'react-loadable';
 import { getBundles } from 'react-loadable/webpack';
 
 import App from '../client/App';
+import loadData from '../shared/loadData';
 
 const buildPath = path.join(__dirname, '../../build');
 const srcPath = path.join(__dirname, '../../src');
@@ -37,7 +38,9 @@ export default async function startServer(options) {
         templateHtml = fs.readFileSync(path.join(srcPath, 'index.html.ejs'), 'utf8')
     }
 
-    app.use((req, res) => {
+    app.use(async (req, res) => {
+        await loadData(req.url);
+
         const context = {};
         const modules = [];
         const app = renderToString(

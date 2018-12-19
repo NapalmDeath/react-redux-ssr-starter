@@ -21,8 +21,6 @@ module.exports = {
         rules: [
             {
                 test: /\.s?css$/,
-                exclude: /node_modules/,
-
                 use: [
                     {
                         loader: isServerBuild ? 'style-loader' : MiniCssPlugin.loader,
@@ -86,6 +84,17 @@ module.exports = {
                 ]
             }
         ]
+    },
+    resolve: {
+        modules: ['node_modules'],
+        extensions: ['.js', '.jsx'],
+        alias: {
+            'client': `${srcPath}/client`,
+            'server': `${srcPath}/server`,
+            'shared': `${srcPath}/shared`,
+            'components': `${srcPath}/client/components`,
+            'pages': `${srcPath}/client/pages`,
+        }
     },
     devServer: {
         port: devPort,
