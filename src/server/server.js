@@ -1,9 +1,8 @@
 import React from 'react';
 import path from 'path';
 import fs from 'fs';
-import fetch from 'node-fetch';
+import ejs from 'ejs';
 import express from 'express';
-import httpProxy from 'http-proxy';
 import { renderToString } from 'react-dom/server';
 import { StaticRouter } from 'react-router-dom';
 import Loadable from 'react-loadable';
@@ -12,22 +11,22 @@ import { getBundles } from 'react-loadable/webpack';
 import App from '../client/App';
 
 const buildPath = path.join(__dirname, '../../build');
+const srcPath = path.join(__dirname, '../../src');
 const isProd = process.env.NODE_ENV === 'production';
+
+const HOST = '127.0.0.1';
+const PORT = 3000;
 
 // Starts the server.
 export default async function startServer(options) {
     // Create HTTP server.
     const app = new express();
-    const { configuration: { output: { publicPath: baseUrl } } } = options;
 
     const stats = JSON.parse(fs.readFileSync(path.join(buildPath, 'react-loadable.json'), 'utf8'));
 
     // Serve static files.
     if (isProd) {
         app.use('/static', express.static(path.join(buildPath, 'static')));
-    } else {
-        const proxy = httpProxy.createProxyServer({ target: `${ baseUrl }static` });
-        app.use('/static', (req, res) => proxy.web(req, res));
     }
 
     let templateHtml;
@@ -35,8 +34,7 @@ export default async function startServer(options) {
     if (isProd) {
         templateHtml = fs.readFileSync(path.join(buildPath, 'index.html'), 'utf8');
     } else {
-        const template = await fetch(baseUrl);
-        templateHtml = await template.text();
+        templateHtml = fs.readFileSync(path.join(srcPath, 'index.html.ejs'), 'utf8')
     }
 
     app.use((req, res) => {
@@ -51,19 +49,20 @@ export default async function startServer(options) {
         );
         const bundles = getBundles(stats, modules);
 
-        const styles = bundles.filter(bundle => bundle.file.endsWith('.css'));
-        const scripts = bundles.filter(bundle => bundle.file.endsWith('.js'));
+        const styles = [
+            ...bundles.filter(bundle => bundle.file.endsWith('.css')).map(style => style.publicPath),
+            ...Object.values(options.chunks().styles),
+        ];
+        const scripts = [
+            ...bundles.filter(bundle => bundle.file.endsWith('.js')).map(script => script.publicPath),
+            ...Object.values(options.chunks().javascript),
+        ];
 
-        let renderedHtml = templateHtml.replace(
-            '<div id="app"></div>',
-            `<div id="app">${ app }</div>
-            ${scripts.map(bundle => `<script src="${bundle.publicPath}"></script>`).join('\n')}
-            `
-        );
-        renderedHtml = renderedHtml.replace(
-            '</head>',
-            styles.map(bundle => `<link href="${bundle.publicPath}" rel="stylesheet"/>`).join('\n')
-        );
+        let renderedHtml = ejs.render(templateHtml, {
+            app,
+            scripts,
+            styles,
+        });
 
         res.status(200);
 
@@ -71,8 +70,8 @@ export default async function startServer(options) {
     });
 
     Loadable.preloadAll().then(() => {
-        app.listen(3000, () => {
-            console.log('Running on http://localhost:3000/');
+        app.listen(PORT, HOST, () => {
+            console.log(`Running on http://${ HOST }:${ PORT }/`);
         });
     });
 }

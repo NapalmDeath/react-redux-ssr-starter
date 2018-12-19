@@ -16,7 +16,7 @@ module.exports = merge(commonConfig, {
     },
     plugins: [
         new HtmlWebpackPlugin({
-            template: path.join(srcPath, 'index.html'),
+            template: path.join(srcPath, 'index.html.ejs'),
             filename: 'index.html',
         }),
         new ReactLoadablePlugin({

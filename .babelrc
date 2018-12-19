@@ -3,6 +3,7 @@
   "plugins": [
     "react-hot-loader/babel",
     "react-loadable/babel",
+    "@babel/plugin-proposal-object-rest-spread",
     "@babel/plugin-syntax-dynamic-import",
     "@babel/plugin-transform-runtime"
   ]

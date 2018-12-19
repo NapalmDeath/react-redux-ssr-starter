@@ -15,7 +15,7 @@ module.exports = {
         path: buildPath,
         filename: "static/js/[name]-[hash].js",
         sourceMapFilename: '[file].map',
-        publicPath: isProd ? '/' : `http://127.0.0.1:${ devPort }/`
+        publicPath: isProd ? '/' : `http://127.0.0.1:${ devPort }/`,
     },
     module: {
         rules: [
