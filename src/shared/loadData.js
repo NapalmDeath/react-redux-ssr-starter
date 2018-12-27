@@ -1,14 +1,16 @@
 import { matchRoutes } from 'react-router-config';
-import Routes from 'client/pages/routes';
 
-export default async (url) => {
-    const matchingRoutes = matchRoutes(Routes, url);
+export default async (routes, url) => {
+    const matchingRoutes = matchRoutes(routes, url);
 
     let promises = [];
 
-    matchingRoutes.forEach(({ route }) => {
-        if (route.loadData) {
-            promises.push(route.loadData());
+    matchingRoutes.forEach((route) => {
+        if (route.route.loadData) {
+            promises.push(route.route.loadData({
+                match: route.match,
+                url,
+            }));
         }
     });
 

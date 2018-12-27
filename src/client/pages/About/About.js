@@ -1,7 +1,26 @@
 import React from 'react';
+import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
 
+import './About.scss';
+
+const mapStateToProps = ({ texts }) => ({
+    texts: texts.data
+});
+
+@withRouter
+@connect(mapStateToProps)
 export default class extends React.Component {
     render() {
-        return <div>ABOUT</div>
+        const { texts } = this.props;
+
+        return (
+            <div>
+                <div className="about">ABOUT</div>
+                <div>
+                    { texts.map((text) => <div key={ text._id }>{ text.text }</div>) }
+                </div>
+            </div>
+        );
     }
 }

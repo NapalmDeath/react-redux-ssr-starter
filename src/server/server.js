@@ -5,11 +5,14 @@ import ejs from 'ejs';
 import express from 'express';
 import { renderToString } from 'react-dom/server';
 import { StaticRouter } from 'react-router-dom';
+import { Provider } from 'react-redux';
 import Loadable from 'react-loadable';
 import { getBundles } from 'react-loadable/webpack';
 
-import App from '../client/App';
-import loadData from '../shared/loadData';
+import createStore from 'store';
+import loadData from 'shared/loadData';
+import createRoutes from 'shared/routes';
+import App from 'client/App';
 
 const buildPath = path.join(__dirname, '../../build');
 const srcPath = path.join(__dirname, '../../src');
@@ -18,14 +21,11 @@ const isProd = process.env.NODE_ENV === 'production';
 const HOST = '127.0.0.1';
 const PORT = 3000;
 
-// Starts the server.
 export default function startServer(options) {
-    // Create HTTP server.
     const app = new express();
 
     const stats = JSON.parse(fs.readFileSync(path.join(buildPath, 'react-loadable.json'), 'utf8'));
 
-    // Serve static files.
     if (isProd) {
         app.use('/static', express.static(path.join(buildPath, 'static')));
     }
@@ -39,39 +39,48 @@ export default function startServer(options) {
     }
 
     app.use((req, res) => {
-        const render = () => {
+        const store = createStore();
+
+        const routes = createRoutes(store);
+
+        loadData(routes, req.url).then(() => {
             const context = {};
             const modules = [];
+
             const app = renderToString(
                 <Loadable.Capture report={ moduleName => modules.push(moduleName) }>
-                    <StaticRouter location={req.url} context={context}>
-                        <App />
-                    </StaticRouter>
+                    <Provider store={ store }>
+                        <StaticRouter location={req.url} context={context}>
+                            <App routes={ routes } />
+                        </StaticRouter>
+                    </Provider>
                 </Loadable.Capture>
             );
+
+            const preloadedStore = store.getState();
+
             const bundles = getBundles(stats, modules);
 
-            const styles = [
+            const styles = [...new Set([
                 ...bundles.filter(bundle => bundle.file.endsWith('.css')).map(style => style.publicPath),
                 ...Object.values(options.chunks().styles),
-            ];
-            const scripts = [
+            ])];
+            const scripts = [...new Set([
                 ...bundles.filter(bundle => bundle.file.endsWith('.js')).map(script => script.publicPath),
                 ...Object.values(options.chunks().javascript),
-            ];
+            ])];
 
             let renderedHtml = ejs.render(templateHtml, {
                 app,
                 scripts,
                 styles,
+                preloadedStore: JSON.stringify(preloadedStore).replace(/</g, '\\u003c')
             });
 
             res.status(200);
 
             return res.send(renderedHtml);
-        };
-
-        loadData(req.url).then(render);
+        });
     });
 
     Loadable.preloadAll().then(() => {

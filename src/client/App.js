@@ -2,26 +2,28 @@ import React from 'react';
 import { hot } from 'react-hot-loader';
 import { Link, Switch } from 'react-router-dom';
 import { renderRoutes } from 'react-router-config';
-import Routes from './pages/routes';
+import PageLoader from './components/PageLoader';
 
 class App extends React.Component {
     render() {
+        const { routes } = this.props;
+
         return (
-            <div>
+            <PageLoader routes={ routes }>
                 Hello world 21
                 <div>
                     <Link to="/">Главная</Link>
                 </div>
                 <div>
-                    <Link to="/home">Home</Link>
+                    <Link to="/home/1">Home</Link>
                 </div>
                 <div>
                     <Link to="/about">About</Link>
                 </div>
                 <Switch>
-                    { renderRoutes(Routes) }
+                    { renderRoutes(routes) }
                 </Switch>
-            </div>
+            </PageLoader>
         )
     }
 }

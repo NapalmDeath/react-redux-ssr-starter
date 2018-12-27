@@ -94,6 +94,7 @@ module.exports = {
             'shared': `${srcPath}/shared`,
             'components': `${srcPath}/client/components`,
             'pages': `${srcPath}/client/pages`,
+            'store': `${srcPath}/store`,
         }
     },
     devServer: {

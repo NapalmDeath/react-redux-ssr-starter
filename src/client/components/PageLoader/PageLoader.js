@@ -1,5 +1,6 @@
 import React, { Fragment } from 'react';
 import { Route, withRouter } from 'react-router-dom';
+import { connect } from 'react-redux';
 import TopBarProgress from "react-topbar-progress-indicator"
 import loadData from 'shared/loadData';
 
@@ -19,6 +20,10 @@ export default class extends React.Component {
         isLoading: false
     };
 
+    async componentDidMount() {
+        await this.loadPage();
+    }
+
     async componentDidUpdate(prevProps) {
         const navigated = prevProps.location !== this.props.location;
 
@@ -28,13 +33,32 @@ export default class extends React.Component {
                 isLoading: true
             });
 
-            await loadData(this.props.location.pathname);
+            await this.loadPage();
 
             this.setState({
                 previousLocation: null,
                 isLoading: false
             })
         }
+    }
+
+    async loadPage() {
+        this.blockPage();
+
+        const {
+            routes,
+            location,
+        } = this.props;
+
+        await loadData(routes, location.pathname);
+
+        this.blockPage(false);
+    }
+
+    blockPage(block = true) {
+        /** Блокирует клики по странице во время загрузки */
+        const app = document.getElementById("app");
+        app.style.pointerEvents = block ? "none" : "all";
     }
 
     render() {

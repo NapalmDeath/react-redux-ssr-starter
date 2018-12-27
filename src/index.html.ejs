@@ -6,12 +6,19 @@
 
     <% if (typeof(styles) !== 'undefined') { %>
         <% styles.forEach(function(style) { %>
-            <link rel="stylesheet" src="<%= style %>"></link>
+            <link rel="stylesheet" type="text/css" href="<%= style %>"></link>
         <% }); %>
     <% } %>
 </head>
 <body style="height: 100%; width: 100%; padding: 0; margin: 0;">
     <div id="app"><% if (typeof(app) !== 'undefined') { %><%- app  %><% } %></div>
+
+    <% if (typeof(preloadedStore) !== 'undefined') { %>
+        <script id="__preloaded_state__">
+            window.__PRELOADED_STATE__ = <%- preloadedStore %>;
+        </script>
+    <% } %>
+
     <% if (typeof(scripts) !== 'undefined') { %>
         <% scripts.forEach(function(script) { %>
             <script src="<%= script %>" language="javascript"></script>
