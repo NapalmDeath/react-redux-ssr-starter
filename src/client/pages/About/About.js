@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
 
 import './About.scss';
 
@@ -20,6 +20,7 @@ export default class extends React.Component {
                 <div>
                     { texts.map((text) => <div key={ text._id }>{ text.text }</div>) }
                 </div>
+                <Link to="/about/123?query=hello">change location</Link>
             </div>
         );
     }

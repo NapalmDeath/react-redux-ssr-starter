@@ -33,7 +33,7 @@ export default class extends React.Component {
                 isLoading: true
             });
 
-            await this.loadPage();
+            await this.loadPage(prevProps.location);
 
             this.setState({
                 previousLocation: null,
@@ -42,7 +42,7 @@ export default class extends React.Component {
         }
     }
 
-    async loadPage() {
+    async loadPage(prevLocation = {}) {
         this.blockPage();
 
         const {
@@ -50,7 +50,7 @@ export default class extends React.Component {
             location,
         } = this.props;
 
-        await loadData(routes, location.pathname);
+        await loadData(routes, location.pathname, prevLocation);
 
         this.blockPage(false);
     }

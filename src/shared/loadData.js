@@ -1,6 +1,6 @@
 import { matchRoutes } from 'react-router-config';
 
-export default async (routes, url) => {
+export default async (routes, url, prevLocation = {}) => {
     const matchingRoutes = matchRoutes(routes, url);
 
     let promises = [];
@@ -10,6 +10,7 @@ export default async (routes, url) => {
             promises.push(route.route.loadData({
                 match: route.match,
                 url,
+                prevLocation
             }));
         }
     });

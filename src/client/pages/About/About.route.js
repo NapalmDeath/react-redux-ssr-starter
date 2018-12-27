@@ -2,16 +2,20 @@ import About from './About';
 import { load } from 'store/texts';
 
 export default (store) => ({
-    path: '/about',
+    path: '/about/:id?',
     component: About,
 
     loadData: ({
         match,
-        url
+        url,
+        prevLocation,
     }) => {
+        console.log('prev location:', prevLocation);
+
         if (store.getState().texts.data.length === 0) {
             return store.dispatch(load());
         }
+
         console.log('Texts already loaded!');
     }
 })
