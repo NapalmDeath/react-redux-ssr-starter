@@ -5,7 +5,7 @@ import './Home.scss';
 
 class Home extends React.Component {
   render() {
-    return <div className="home">ДОМ1</div>;
+    return <div className="home">ДОМ</div>;
   }
 }
 

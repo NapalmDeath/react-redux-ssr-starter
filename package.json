@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "clean": "rimraf build",
+    "prepare-server-build": "universal-webpack --settings ./webpack/universal-webpack-settings.json prepare",
     "build-client:dev": "webpack-dev-server --inline --config ./webpack/config.client.babel.js --mode development",
     "build-server:dev": "BUILD=server webpack --watch --config ./webpack/config.server.babel.js --colors --display-error-details --mode development",
     "server:dev": "nodemon ./bin/startServer --watch ./build/server",
@@ -13,7 +14,7 @@
     "build:prod": "npm-run-all --parallel build-client:prod build-server:prod",
     "server:prod": "NODE_ENV=production node ./bin/startServer",
     "build:dev": "npm-run-all --parallel build-client:dev build-server:dev",
-    "dev": "npm-run-all clean --parallel build:dev server:dev"
+    "dev": "npm-run-all clean prepare-server-build --parallel build:dev server:dev"
   },
   "author": "",
   "license": "ISC",
