@@ -3,9 +3,11 @@ import thunk from 'redux-thunk';
 
 import texts from './texts';
 
-export default (preloadedStore = {}) => createStore(combineReducers({
-    texts
-}),
+export default (preloadedStore = {}) =>
+  createStore(
+    combineReducers({
+      texts
+    }),
     preloadedStore,
     applyMiddleware(thunk)
-);
+  );

@@ -22,70 +22,77 @@ const HOST = '127.0.0.1';
 const PORT = 3000;
 
 export default function startServer(options) {
-    const app = new express();
+  const app = new express();
 
-    const stats = JSON.parse(fs.readFileSync(path.join(buildPath, 'react-loadable.json'), 'utf8'));
+  const stats = JSON.parse(
+    fs.readFileSync(path.join(buildPath, 'react-loadable.json'), 'utf8')
+  );
 
-    if (isProd) {
-        app.use('/static', express.static(path.join(buildPath, 'static')));
-    }
+  if (isProd) {
+    app.use('/static', express.static(path.join(buildPath, 'static')));
+  }
 
-    let templateHtml;
+  const templateHtml = fs.readFileSync(
+    path.join(srcPath, 'index.html.ejs'),
+    'utf8'
+  );
 
-    if (isProd) {
-        templateHtml = fs.readFileSync(path.join(buildPath, 'index.html'), 'utf8');
-    } else {
-        templateHtml = fs.readFileSync(path.join(srcPath, 'index.html.ejs'), 'utf8')
-    }
+  app.use((req, res) => {
+    const store = createStore();
 
-    app.use((req, res) => {
-        const store = createStore();
+    const routes = createRoutes(store);
 
-        const routes = createRoutes(store);
+    loadData(routes, req.url).then(() => {
+      const context = {};
+      const modules = [];
 
-        loadData(routes, req.url).then(() => {
-            const context = {};
-            const modules = [];
+      const app = renderToString(
+        <Loadable.Capture report={moduleName => modules.push(moduleName)}>
+          <Provider store={store}>
+            <StaticRouter location={req.url} context={context}>
+              <App routes={routes} />
+            </StaticRouter>
+          </Provider>
+        </Loadable.Capture>
+      );
 
-            const app = renderToString(
-                <Loadable.Capture report={ moduleName => modules.push(moduleName) }>
-                    <Provider store={ store }>
-                        <StaticRouter location={req.url} context={context}>
-                            <App routes={ routes } />
-                        </StaticRouter>
-                    </Provider>
-                </Loadable.Capture>
-            );
+      const preloadedStore = store.getState();
 
-            const preloadedStore = store.getState();
+      const bundles = getBundles(stats, modules);
 
-            const bundles = getBundles(stats, modules);
+      const styles = [
+        ...new Set([
+          ...bundles
+            .filter(bundle => bundle.file.endsWith('.css'))
+            .map(style => style.publicPath),
+          ...Object.values(options.chunks().styles)
+        ])
+      ];
+      const scripts = [
+        ...new Set([
+          ...bundles
+            .filter(bundle => bundle.file.endsWith('.js'))
+            .map(script => script.publicPath),
+          ...Object.values(options.chunks().javascript)
+        ])
+      ];
 
-            const styles = [...new Set([
-                ...bundles.filter(bundle => bundle.file.endsWith('.css')).map(style => style.publicPath),
-                ...Object.values(options.chunks().styles),
-            ])];
-            const scripts = [...new Set([
-                ...bundles.filter(bundle => bundle.file.endsWith('.js')).map(script => script.publicPath),
-                ...Object.values(options.chunks().javascript),
-            ])];
+      let renderedHtml = ejs.render(templateHtml, {
+        app,
+        scripts,
+        styles,
+        preloadedStore: JSON.stringify(preloadedStore).replace(/</g, '\\u003c')
+      });
 
-            let renderedHtml = ejs.render(templateHtml, {
-                app,
-                scripts,
-                styles,
-                preloadedStore: JSON.stringify(preloadedStore).replace(/</g, '\\u003c')
-            });
+      res.status(200);
 
-            res.status(200);
-
-            return res.send(renderedHtml);
-        });
+      return res.send(renderedHtml);
     });
+  });
 
-    Loadable.preloadAll().then(() => {
-        app.listen(PORT, HOST, () => {
-            console.log(`Running on http://${ HOST }:${ PORT }/`);
-        });
+  Loadable.preloadAll().then(() => {
+    app.listen(PORT, HOST, () => {
+      console.log(`Running on http://${HOST}:${PORT}/`);
     });
+  });
 }

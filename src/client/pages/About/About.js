@@ -1,3 +1,4 @@
+import { hot } from 'react-hot-loader/root';
 import React from 'react';
 import { connect } from 'react-redux';
 import { Link, withRouter } from 'react-router-dom';
@@ -10,7 +11,7 @@ const mapStateToProps = ({ texts }) => ({
 
 @withRouter
 @connect(mapStateToProps)
-export default class extends React.Component {
+class About extends React.Component {
     render() {
         const { texts } = this.props;
 
@@ -25,3 +26,5 @@ export default class extends React.Component {
         );
     }
 }
+
+export default hot(About);

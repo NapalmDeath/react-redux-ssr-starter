@@ -11,19 +11,19 @@ let preloadedState = {};
 
 const preloadedScript = document.getElementById('__preloaded_state__');
 if (preloadedScript) {
-    preloadedState = window.__PRELOADED_STATE__ || {};
-    delete window.__PRELOADED_STATE__;
-    preloadedScript.remove();
+  preloadedState = window.__PRELOADED_STATE__ || {};
+  delete window.__PRELOADED_STATE__;
+  preloadedScript.remove();
 }
 
 const store = createStore(preloadedState);
 const routes = createRoutes(store);
 
 ReactDOM.hydrate(
-    <Provider store={ store }>
-        <BrowserRouter>
-            <App routes={ routes } />
-        </BrowserRouter>
-    </Provider>,
-    document.getElementById('app')
+  <Provider store={store}>
+    <BrowserRouter>
+      <App routes={routes} />
+    </BrowserRouter>
+  </Provider>,
+  document.getElementById('app')
 );
