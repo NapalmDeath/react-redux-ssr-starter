@@ -5,6 +5,8 @@ const developmentEnvironments = ['development', 'test'];
 const developmentPlugins = [require('react-hot-loader/babel')];
 
 const plugins = [
+  require('@loadable/babel-plugin'),
+  require('@babel/plugin-transform-runtime'),
   [require('@babel/plugin-proposal-decorators'), { legacy: true }],
   require('@babel/plugin-proposal-export-default-from'),
   require('@babel/plugin-proposal-class-properties'),

@@ -1,12 +1,4 @@
 import React from 'react';
-import Loadable from 'react-loadable';
+import loadable from '@loadable/component';
 
-export default Loadable({
-    loader: () => import('./Home'),
-    loading: (props) => {
-        if (props.pastDelay) {
-            return <div>Загрузка</div>;
-        }
-        return null;
-    },
-});
+export default loadable(() => import('./Home'));

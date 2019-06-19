@@ -1,4 +1,4 @@
-import About from './About';
+import About from './index';
 import { load } from 'store/texts';
 
 export default (store) => ({

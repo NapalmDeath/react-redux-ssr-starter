@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { hot } from 'react-hot-loader';
-import { Link, Switch } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { renderRoutes } from 'react-router-config';
 import PageLoader from './components/PageLoader';
 
@@ -9,7 +9,7 @@ class App extends React.Component {
     const { routes } = this.props;
 
     return (
-      <PageLoader routes={routes}>
+      <Fragment>
         Hello world
         <div>
           <Link to="/">Главная</Link>
@@ -20,8 +20,8 @@ class App extends React.Component {
         <div>
           <Link to="/about">About</Link>
         </div>
-        <Switch>{renderRoutes(routes)}</Switch>
-      </PageLoader>
+        <PageLoader routes={routes}>{renderRoutes(routes)}</PageLoader>
+      </Fragment>
     );
   }
 }

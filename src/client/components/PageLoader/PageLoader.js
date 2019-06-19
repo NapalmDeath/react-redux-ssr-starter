@@ -1,16 +1,15 @@
 import React, { Fragment } from 'react';
 import { Route, withRouter } from 'react-router-dom';
-import { connect } from 'react-redux';
-import TopBarProgress from "react-topbar-progress-indicator"
+import TopBarProgress from 'react-topbar-progress-indicator';
 import loadData from 'shared/loadData';
 
 TopBarProgress.config({
     barColors: {
-        "0": "#53b374",
-        "1.0": "#53b374",
+        '0': '#3180F2',
+        '1.0': '#0042A2'
     },
-    barThickness: 2,
-    shadowBlur: 5,
+    barThickness: 5,
+    shadowBlur: 5
 });
 
 @withRouter
@@ -19,6 +18,20 @@ export default class extends React.Component {
         previousLocation: null,
         isLoading: false
     };
+
+    static getDerivedStateFromProps(nextProps, prevState){
+        const navigated = nextProps.location !== prevState.previousLocation;
+
+        if (prevState.previousLocation === null) {
+            return { previousLocation: nextProps.location };
+        }
+
+        if(navigated){
+            return { previousLocation: prevState.previousLocation };
+        }
+
+        else return null;
+    }
 
     async componentDidMount() {
         await this.loadPage();
@@ -38,17 +51,14 @@ export default class extends React.Component {
             this.setState({
                 previousLocation: null,
                 isLoading: false
-            })
+            });
         }
     }
 
     async loadPage(prevLocation = {}) {
         this.blockPage();
 
-        const {
-            routes,
-            location,
-        } = this.props;
+        const { routes, location } = this.props;
 
         await loadData(routes, location.pathname, prevLocation);
 
@@ -57,8 +67,8 @@ export default class extends React.Component {
 
     blockPage(block = true) {
         /** Блокирует клики по странице во время загрузки */
-        const app = document.getElementById("app");
-        app.style.pointerEvents = block ? "none" : "all";
+        const app = document.getElementById('app');
+        app.style.pointerEvents = block ? 'none' : 'all';
     }
 
     render() {
@@ -66,13 +76,12 @@ export default class extends React.Component {
         const { previousLocation, isLoading } = this.state;
 
         return (
-            <Fragment>
-                { isLoading && <TopBarProgress /> }
-                <Route
-                    location={ previousLocation || location }
-                    render={ () => children }
-                />
-            </Fragment>
-        )
+          <Fragment>
+              {isLoading && <TopBarProgress />}
+              {React.cloneElement(children, {
+                  location: previousLocation || location
+              })}
+          </Fragment>
+        );
     }
 }

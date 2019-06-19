@@ -2,7 +2,7 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssPlugin = require('mini-css-extract-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
-const { ReactLoadablePlugin } = require('react-loadable/webpack');
+const LoadablePlugin = require('@loadable/webpack-plugin');
 const merge = require('webpack-merge');
 
 const commonConfig = require('./common.config');
@@ -34,8 +34,9 @@ module.exports = merge(commonConfig, {
       template: path.join(srcPath, 'index.html.ejs'),
       filename: 'index.html'
     }),
-    new ReactLoadablePlugin({
-      filename: path.join(buildPath, 'react-loadable.json')
+    new LoadablePlugin({
+      filename: path.join(buildPath, 'loadable-stats.json'),
+      writeToDisk: true
     }),
     new MiniCssPlugin({
       filename: 'static/css/[name]-[hash].css'
