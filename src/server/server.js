@@ -41,12 +41,12 @@ export default function startServer() {
     const routes = createRoutes(store);
 
     loadData(routes, req.url).then(() => {
-      const context = {};
+      const context = { };
 
       const view = (
         <Provider store={store}>
           <StaticRouter location={req.url} context={context}>
-            <App routes={routes} />
+            <App routes={routes} context={context} />
           </StaticRouter>
         </Provider>
       );

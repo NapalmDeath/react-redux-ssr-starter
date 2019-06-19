@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import { Route, withRouter } from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
 import TopBarProgress from 'react-topbar-progress-indicator';
 import loadData from 'shared/loadData';
 
@@ -34,7 +34,9 @@ export default class extends React.Component {
     }
 
     async componentDidMount() {
-        await this.loadPage();
+        if (!(this.props.context || {}).initialLoad) {
+            await this.loadPage();
+        }
     }
 
     async componentDidUpdate(prevProps) {

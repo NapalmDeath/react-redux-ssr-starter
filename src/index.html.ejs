@@ -14,6 +14,7 @@
     <% if (typeof(preloadedStore) !== 'undefined') { %>
         <script id="__preloaded_state__">
             window.__PRELOADED_STATE__ = <%- preloadedStore %>;
+            window.__INITIAL_LOAD__ = true;
         </script>
     <% } %>
 

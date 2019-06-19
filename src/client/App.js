@@ -6,7 +6,7 @@ import PageLoader from './components/PageLoader';
 
 class App extends React.Component {
   render() {
-    const { routes } = this.props;
+    const { routes, context = {} } = this.props;
 
     return (
       <Fragment>
@@ -20,7 +20,9 @@ class App extends React.Component {
         <div>
           <Link to="/about">About</Link>
         </div>
-        <PageLoader routes={routes}>{renderRoutes(routes)}</PageLoader>
+        <PageLoader routes={routes} context={context}>
+          {renderRoutes(routes)}
+        </PageLoader>
       </Fragment>
     );
   }
