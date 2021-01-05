@@ -79,7 +79,7 @@
     "@babel/polyfill": "^7.0.0",
     "@loadable/component": "^5.10.1",
     "@loadable/server": "^5.9.0",
-    "axios": "^0.18.0",
+    "axios": "^0.21.1",
     "classnames": "^2.2.6",
     "ejs": "^2.6.1",
     "immutability-helper": "^2.9.0",
